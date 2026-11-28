@@ -1,0 +1,154 @@
+<?php
+$page = "regular";
+$page_title = "Regular Pubbers";
+$auth_name = 'clients';
+$b3_conn = true; // this page needs to connect to the B3 database
+$pagination = true; // this page requires the pagination part of the footer
+$query_normal = true;
+require 'inc.php';
+
+##########################
+######## Varibles ########
+
+//$time = 1250237292;
+$time = time();
+$lenght = 7; // default lenght (in days) that the client must have connected to the server(s) on in order to be on the list
+$connections_limit = 50; // default number of connections that the player must have (in total) to be on the list
+
+$clan_tags = $config['cosmos']['reg_clan_tags']; // use the clan tags stored in the DB conifg table
+
+$clan_tags = explode(',', $clan_tags);
+
+## Sorts requests vars ##
+$orderby = "time_edit";
+if(filter_input(INPUT_GET, 'ob')) {
+    $orderby = addslashes(filter_input(INPUT_GET, 'ob'));
+}
+
+$order = "ASC"; // either ASC or DESC
+if(filter_input(INPUT_GET, 'o')) {
+    $order = addslashes(filter_input(INPUT_GET, 'o'));
+}
+
+// allowed things to sort by
+$allowed_orderby = array('id', 'name', 'connections', 'group_bits', 'time_edit');
+// Check if the sent varible is in the allowed array 
+if(!in_array($orderby, $allowed_orderby)) {
+    $orderby = 'time_edit'; // if not just set to default id
+}
+
+## Page Vars ##
+$page_no = 0;
+if (filter_input(INPUT_GET, 'p')) {
+    $page_no = max(0, (int) filter_input(INPUT_GET, 'p'));
+}
+
+$start_row = $page_no * $limit_rows;
+
+###########################
+######### QUERY ###########
+
+$query = sprintf("SELECT c.id, c.name, c.connections, c.time_edit, g.name as level
+	FROM clients c LEFT JOIN usergroups g ON c.group_bits = g.id
+	WHERE c.group_bits <= 2 AND(%d - c.time_edit < %d*60*60*24 ) 
+	AND connections > %d AND c.id != 1 ", $time, $lenght, $connections_limit);
+	
+foreach ($clan_tags as $tag) {
+	// run through array appending clantag section for each value in the array
+	$query .= "AND c.name NOT LIKE '%".$tag."%' ";
+}
+
+$query .= sprintf("ORDER BY %s", $orderby);
+
+## Append this section to all queries since it is the same for all ##
+if($order == "DESC") {
+    $query .= " DESC"; // set to desc 
+}
+else {
+    $query .= " ASC"; // default to ASC if nothing adds up
+}
+
+$query_limit = sprintf("%s LIMIT %s, %s", $query, $start_row, $limit_rows); // add limit section
+
+## Require Header ##	
+require 'inc/header.php';
+
+if(!$db->error) :
+?>
+<div class="col-lg-11 mx-auto my-2">
+<div class="card my-2">
+<h5 class="card-header">Regular Players</h5>
+<div class="card-body table table-hover table-sm table-responsive">
+
+<table width="100%">
+    <thead>
+        <tr>
+            <th>Name
+                <?php linkSort('name', 'Name'); ?>
+            </th>
+            <th>Connections
+                <?php linkSort('connections', 'Connections'); ?>
+            </th>
+            <th>Client-ID
+                <?php linkSort('id', 'Client-id'); ?>
+            </th>
+            <th>Level
+                <?php linkSort('group_bits', 'Level'); ?>
+            </th>
+            <th>Last Seen
+                <?php linkSort('time_edit', 'Last Seen'); ?>
+            </th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th colspan="5"></th>
+        </tr>
+    </tfoot>
+    <tbody>
+	<?php
+	if($num_rows > 0) : // query contains stuff so spit it out
+	 
+            foreach($data_set as $clients): // get data from query and loop
+                $cid = $clients['id'];
+                $name = $clients['name'];
+                $level = $clients['level'];
+                $connections = $clients['connections'];
+                $time_edit = $clients['time_edit'];
+
+                ## Change to human readable ##
+                $time_edit_read = date($tformat, $time_edit); // this must be after the time_diff
+
+                ## row color ##
+                $alter = alter();
+
+                $client = clientLink($name, $cid);
+
+                // setup heredoc (table data)			
+                $data = <<<EOD
+                <tr class="$alter">
+                    <td><strong>$client</td>
+                    <td>$connections</td>
+                    <td>@$cid</td>
+                    <td>$level</td>
+                    <td><em>$time_edit_read</em></td>
+                </tr>
+EOD;
+
+                echo $data;
+            endforeach;
+            $no_data = false;
+		
+	else:
+            $no_data = true;
+            echo '<tr class="odd"><td colspan="5">There are no people who have had a total mininium of '.$connections_limit.' connections and been seen in the last '.$lenght.' days.</td></tr>';
+	endif; // no records
+	?>
+    </tbody>
+</table>
+</div></div></div>
+<?php 
+    endif; // db error
+
+    require 'inc/footer.php'; 
+?>

@@ -1,0 +1,39 @@
+#############
+## General ##
+$path = "%ech_path%"; // path to echelon from root of web directory. include starting and trailing (eg. "/echelon/" )
+define("PATH", $path);
+
+## Connection info to connect to the database containing the echelon tables
+define("DBL_HOSTNAME", "%db_host%"); // hostname of where the server is located
+define("DBL_USERNAME", "%db_user%"); // username that can connect to that DB
+define("DBL_PASSWORD", "%db_pass%"); // Password for that user
+define("DBL_DB", "%db_name%"); // Password for that user
+
+#############################
+///// IGNORE BELOW HERE /////
+define("SALT", '%ech_salt%'); // do not change ever, this is salt for hashes
+
+$supported_games = array( // supported games
+	"q3a" => "Quake 3 Arena", 
+	"cod" => "Call of Duty", 
+	"cod2" => "Call of Duty 2", 
+	"cod4" => "Call of Duty 4 MW", 
+	"cod5" => "Call of Duty: World at War", 
+	"iourt41" => "Urban Terror", 
+	"wop" => "World of Padman"
+);
+
+// OPTIONAL: URL of a text file that holds the newest version (e.g. "v3.1"). Leave it commented out to switch the update notice off.
+// define("ECH_UPDATE_URL", "");
+
+// Do not touch this varible
+define("INSTALLED", 'yes');
+
+// Do not touch this varible either
+define("SES_SALT", '%ses_salt%');
+
+// Optional - uncomment to override the defaults (see inc/defaults.php)
+// define("ECH_DEBUG", false);                 // true = show PHP warnings on screen (never on a live site)
+// define("ECH_LOG", __DIR__."/../lib/log.txt"); // Echelon log file (rotated at 1 MB)
+// define("MAP_PK3_DIR", "/home/urt/.q3a/q3ut4"); // folder(s) with your map .pk3 files, used to pick up map pictures automatically
+// define("B3_DB_CHARSET", "utf8mb4");         // charset of your B3 database if it is not latin1/utf8

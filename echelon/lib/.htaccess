@@ -1,0 +1,10 @@
+# Logs, caches and the GeoIP / GeoLite2 databases are read by PHP, never by browsers
+<FilesMatch "\.(txt|log|dat|json|mmdb|part|lock)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
