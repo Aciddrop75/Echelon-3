@@ -1,0 +1,25 @@
+# Local settings and secrets: never commit these
+echelon/inc/config.php.bak
+*.env
+
+# Created while Echelon runs
+echelon/lib/log.txt
+echelon/lib/log.txt.*
+echelon/lib/*.mmdb
+echelon/lib/GeoLite2*
+echelon/lib/map-index.json
+
+# Map pictures and mapcycle links that belong to one installation
+echelon/images/maps/*
+!echelon/images/maps/README.txt
+!echelon/images/maps/.htaccess
+echelon/mapcycle/*
+!echelon/mapcycle/README.txt
+!echelon/mapcycle/.htaccess
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

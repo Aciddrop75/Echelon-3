@@ -1,0 +1,8 @@
+# Keep shell scripts on Unix line endings, even when checked out on Windows
+*.sh text eol=lf
+# Let Git decide for other text files
+* text=auto
+*.png binary
+*.pdf binary
+*.dat binary
+*.ico binary
